@@ -33,11 +33,6 @@ public class ProfileService {
         return profileRepo.getProfilesById(id, search);
     }
 
-    // To be used by method that analyzes message, and flags the sender's profile if necessary
-    private boolean flagProfile(String profileId) {
-        return profileRepo.incrementFlagCount(profileId);
-    }
-
     private static Role toRole(String role) {
         try {
             return Role.valueOf(role.toUpperCase());

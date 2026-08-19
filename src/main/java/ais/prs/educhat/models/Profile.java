@@ -153,6 +153,7 @@ public class Profile {
         this.updatedAt = updatedAt;
     }
 
+    @Override
     public String toString() {
         return "Profile{" +
                 "id='" + id + '\'' +
