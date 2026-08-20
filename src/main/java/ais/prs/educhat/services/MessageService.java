@@ -9,12 +9,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ais.prs.educhat.models.FlagCategory;
-import ais.prs.educhat.models.FlagRecord;
+import ais.prs.educhat.dto.MessageResponse;
 import ais.prs.educhat.models.Message;
-import ais.prs.educhat.repositories.FlagRepository;
+import ais.prs.educhat.models.enums.FlagCategory;
 import ais.prs.educhat.repositories.MessageRepository;
-import ais.prs.educhat.repositories.ProfileRepository;
 
 @Service
 public class MessageService {
@@ -23,32 +21,34 @@ public class MessageService {
     private MessageRepository messageRepo;
 
     @Autowired
-    private ProfileRepository profileRepo;
-
-    @Autowired
-    private FlagRepository flagRepo;
+    private FlagService flagSvc;
 
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
-    public void sendMessage(String sender, String receiver, String content) {
+    public MessageResponse sendMessage(String sender, String receiver, String content) {
         Message message = new Message(sender, receiver, content);
         String key = buildKey(sender, receiver);
 
         // Establish message check (Python API) 
         boolean flagged = true;
+        FlagCategory flagCategory = FlagCategory.CYBERBULLYING;
 
         if (flagged) {
+            System.out.println("Flagging message...");
             // Proceed to call LLM to rephrase message and return suggested
-            String LLMRephrased = "placeholder";
+            String llmRephrased = "placeholder";
 
             // If flagged, create FlagRecord object and update Profile flag_count
-            FlagRecord fr = new FlagRecord(sender, receiver, message.getId(), content, LLMRephrased, FlagCategory.TOXIC);
-            flagRepo.addFlagRecord(fr);
+            flagSvc.flagRecord(sender, receiver, message, content, llmRephrased, flagCategory);
 
-            profileRepo.incrementFlagCount(sender);
+            MessageResponse notSent = new MessageResponse(false, null, flagCategory.name(), llmRephrased);
+            return notSent;
         } 
+
         // If not flagged, proceed to send message
         messageRepo.saveMessage(key, message);
+        MessageResponse sent = new MessageResponse(true, message, null, null);
+        return sent;
     }
 
     public List<Message> getConversation(String userID1, String userID2) {

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ais.prs.educhat.models.Profile;
-import ais.prs.educhat.models.Role;
+import ais.prs.educhat.models.enums.Role;
 import ais.prs.educhat.repositories.ProfileRepository;
 
 @Service

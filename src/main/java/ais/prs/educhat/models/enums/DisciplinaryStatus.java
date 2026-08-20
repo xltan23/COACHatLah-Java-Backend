@@ -1,4 +1,4 @@
-package ais.prs.educhat.models;
+package ais.prs.educhat.models.enums;
 
 public enum DisciplinaryStatus {
     NONE,

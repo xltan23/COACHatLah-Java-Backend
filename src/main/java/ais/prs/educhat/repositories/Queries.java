@@ -23,6 +23,10 @@ public class Queries {
         UPDATE profiles SET current_semester_flag_count = current_semester_flag_count + 1, updated_at = ? WHERE id = ?
     """;
 
+    public final static String SQL_GET_FLAG_COUNT = """
+        SELECT current_semester_flag_count FROM profiles WHERE id = ?        
+    """;
+
     public final static String SQL_INSERT_FLAGRECORD_IN_FLAGRECORDS = """
         INSERT INTO flag_records (sender_id, receiver_id, message_id, original_text, rephrase_suggested, flag_category, flagged_at) 
         VALUES (?, ?, ?, ?, ?, ?, ?)

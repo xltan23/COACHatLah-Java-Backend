@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ais.prs.educhat.dto.MessageResponse;
 import ais.prs.educhat.models.Message;
 import ais.prs.educhat.services.MessageService;
 import jakarta.json.Json;
@@ -24,14 +25,14 @@ public class MessageController {
     private MessageService messageSvc;
 
     @PostMapping("/send")
-    public ResponseEntity<String> saveMessage(@RequestBody MultiValueMap<String, String> formData) {
+    public ResponseEntity<MessageResponse> saveMessage(@RequestBody MultiValueMap<String, String> formData) {
         
-        messageSvc.sendMessage(
-            formData.getFirst("sender"), 
-            formData.getFirst("receiver"),
-            formData.getFirst("message")
-        );
-        return ResponseEntity.ok("Message saved successfully.");
+        MessageResponse mr = messageSvc.sendMessage(
+                                formData.getFirst("sender"), 
+                                formData.getFirst("receiver"),
+                                formData.getFirst("message")
+                            );
+        return ResponseEntity.ok(mr);
     }
 
     @GetMapping("/retrieve")

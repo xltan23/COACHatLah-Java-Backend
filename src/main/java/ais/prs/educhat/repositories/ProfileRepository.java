@@ -40,31 +40,31 @@ public class ProfileRepository {
     }
 
     public List<Profile> getProfilesByClass(String school, String classCohort) {
-        System.out.printf("\nFetching %s %s information from database: ", school, classCohort);
+        System.out.printf("\nFetching %s %s information from database... ", school, classCohort);
         
         SqlRowSet srs = jdbcTemplate.queryForRowSet(SQL_SELECT_PROFILES_BY_SCHOOL_AND_CLASS, school, classCohort);
         List<Profile> profiles = new LinkedList<>();
         while (srs.next()) {
             profiles.add(Profile.createProfile(srs));
         }
-
+        System.out.println("\nRetrieval complete");
         return profiles;
     }
 
     public List<Profile> getProfilesByCCA(String school, String cca) {
-        System.out.printf("\nFetching %s %s information from database: ", school, cca);
+        System.out.printf("\nFetching %s %s information from database... ", school, cca);
         
         SqlRowSet srs = jdbcTemplate.queryForRowSet(SQL_SELECT_PROFILES_BY_SCHOOL_AND_CCA, school, cca);
         List<Profile> profiles = new LinkedList<>();
         while (srs.next()) {
             profiles.add(Profile.createProfile(srs));
         }
-
+        System.out.println("\nRetrieval complete");
         return profiles;
     }
 
     public List<Profile> getProfilesById(String id, String search) {
-        System.out.printf("\nFetching school and class cohort for ID: %s from database: ", id);
+        System.out.printf("\nFetching school and class cohort for ID %s from database: ", id);
         
         String school = "";
         String classCohort = "";
@@ -93,5 +93,12 @@ public class ProfileRepository {
     public boolean incrementFlagCount(String id) {
         System.out.println("Incrementing flag count for profile: " + id);
         return jdbcTemplate.update(SQL_INCREMENT_FLAG_COUNT, Timestamp.from(Instant.now()), id) > 0;
+    }
+
+    public int getFlagCount(String id) {
+        System.out.println("Retrieving flag count for profile: " + id);
+        Integer count = jdbcTemplate.queryForObject(SQL_GET_FLAG_COUNT, Integer.class, id);
+        System.out.printf("Profile % flag count: %d", id, count);
+        return count != null ? count : 0;
     }
 }

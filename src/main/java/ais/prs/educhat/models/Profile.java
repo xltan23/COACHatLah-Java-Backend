@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
+import ais.prs.educhat.models.enums.AccountStatus;
+import ais.prs.educhat.models.enums.DisciplinaryStatus;
+import ais.prs.educhat.models.enums.Role;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 

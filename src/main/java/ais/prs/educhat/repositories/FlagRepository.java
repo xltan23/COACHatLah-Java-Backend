@@ -17,7 +17,7 @@ public class FlagRepository {
     private JdbcTemplate jdbcTemplate;
 
     public boolean addFlagRecord(FlagRecord flagRecord) {
-        System.out.println("Inserting flag record into database: " + flagRecord);
+        System.out.println("\nInserting flag record into database: " + flagRecord);
         return jdbcTemplate.update(SQL_INSERT_FLAGRECORD_IN_FLAGRECORDS,
             // flagRecord.getId(),
             flagRecord.getSenderId(),
@@ -25,7 +25,7 @@ public class FlagRepository {
             flagRecord.getMessageId(),
             flagRecord.getOriginalText(),
             flagRecord.getRephraseSuggested(),
-            flagRecord.getFlagCategory(),
+            flagRecord.getFlagCategory().name(),
             Timestamp.from(flagRecord.getFlaggedAt())
         ) > 0;
     }

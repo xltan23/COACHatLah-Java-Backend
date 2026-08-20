@@ -2,6 +2,8 @@ package ais.prs.educhat.models;
 
 import java.time.Instant;
 
+import ais.prs.educhat.models.enums.FlagCategory;
+
 public class FlagRecord {
     
     private Long id;
