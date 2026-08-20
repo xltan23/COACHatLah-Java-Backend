@@ -98,7 +98,7 @@ public class ProfileRepository {
     public int getFlagCount(String id) {
         System.out.println("Retrieving flag count for profile: " + id);
         Integer count = jdbcTemplate.queryForObject(SQL_GET_FLAG_COUNT, Integer.class, id);
-        System.out.printf("Profile % flag count: %d", id, count);
+        System.out.printf("Profile %s flag count: %d", id, count);
         return count != null ? count : 0;
     }
 }

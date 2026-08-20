@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import static ais.prs.educhat.repositories.Queries.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import ais.prs.educhat.models.FlagRecord;
 
@@ -31,4 +32,5 @@ public class FlagRepository {
     }
 
     // Get FlagRecord
+    
 }

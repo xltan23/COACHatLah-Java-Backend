@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ais.prs.educhat.clients.OpenAiRephraseClient;
 import ais.prs.educhat.dto.MessageResponse;
 import ais.prs.educhat.models.Message;
 import ais.prs.educhat.models.enums.FlagCategory;
@@ -16,12 +17,15 @@ import ais.prs.educhat.repositories.MessageRepository;
 
 @Service
 public class MessageService {
-    
+
     @Autowired
     private MessageRepository messageRepo;
 
     @Autowired
     private FlagService flagSvc;
+
+    @Autowired
+    private OpenAiRephraseClient openAiClient;
 
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
@@ -34,10 +38,9 @@ public class MessageService {
         FlagCategory flagCategory = FlagCategory.CYBERBULLYING;
 
         if (flagged) {
-            System.out.println("Flagging message...");
-            // Proceed to call LLM to rephrase message and return suggested
-            String llmRephrased = "placeholder";
-
+            System.out.println("\nFlagging message...");
+            String llmRephrased = openAiClient.rephrase(content, flagCategory);
+            System.out.printf("\nLLM Response: " + llmRephrased);
             // If flagged, create FlagRecord object and update Profile flag_count
             flagSvc.flagRecord(sender, receiver, message, content, llmRephrased, flagCategory);
 

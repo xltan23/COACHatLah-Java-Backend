@@ -21,7 +21,7 @@ public class FlagService {
 
     @Transactional
     public FlagRecord flagRecord(String sender, String receiver, Message message, String content, String llmRephrased, FlagCategory flagCategory) {
-        System.out.printf("\nCreating flag record for: " + sender);
+        System.out.printf("\nCreating flag record for: %s", sender);
         FlagRecord fr = new FlagRecord(sender, receiver, message.getId(), content, llmRephrased, flagCategory);
         flagRepo.addFlagRecord(fr);
         profileRepo.incrementFlagCount(sender);
@@ -29,7 +29,7 @@ public class FlagService {
         // Check flag count sender
         int currentCount = profileRepo.getFlagCount(sender);
         if (currentCount >= 10) {
-            System.out.printf("\nProfile % to be reviewed", sender);
+            System.out.printf("\nProfile %s to be reviewed", sender);
             // Additional method to alert disciplinary committee
         }
         return fr;
