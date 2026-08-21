@@ -11,7 +11,7 @@ public class Message {
     
     private String id;
     private String senderId;
-    private String receiverId;
+    private String recipientId;
     private String content;
     private Instant timestamp;
 
@@ -19,10 +19,10 @@ public class Message {
     public Message() {}
 
     // Message constructor
-    public Message(String senderId, String receiverId, String content) {
+    public Message(String senderId, String recipientId, String content) {
         this.id = UUID.randomUUID().toString(); // Generate a unique ID for the message
         this.senderId = senderId;
-        this.receiverId = receiverId;
+        this.recipientId = recipientId;
         this.content = content;
         this.timestamp = Instant.now(); // Set timestamp to current time upon message creation
     }
@@ -44,12 +44,12 @@ public class Message {
         this.senderId = senderId;
     }
 
-    public String getReceiverId() {
-        return receiverId;
+    public String getRecipientId() {
+        return recipientId;
     }
 
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
+    public void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
     }
 
     public String getContent() {
@@ -72,7 +72,7 @@ public class Message {
         return Json.createObjectBuilder()
                 // .add("id", id)
                 .add("senderId", senderId)
-                .add("receiverId", receiverId)
+                .add("recipientId", recipientId)
                 .add("content", content)
                 .add("timestamp", timestamp.toString())
                 .build();
@@ -82,7 +82,7 @@ public class Message {
         Message message = new Message();
         message.setId(json.getString("id"));
         message.setSenderId(json.getString("senderId"));
-        message.setReceiverId(json.getString("receiverId"));
+        message.setRecipientId(json.getString("recipientId"));
         message.setContent(json.getString("content"));
         message.setTimestamp(Instant.parse(json.getString("timestamp")));
         return message;

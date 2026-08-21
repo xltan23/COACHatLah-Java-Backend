@@ -29,7 +29,7 @@ public class MessageController {
         
         MessageResponse mr = messageSvc.sendMessage(
                                 formData.getFirst("sender"), 
-                                formData.getFirst("receiver"),
+                                formData.getFirst("recipient"),
                                 formData.getFirst("message")
                             );
         return ResponseEntity.ok(mr);

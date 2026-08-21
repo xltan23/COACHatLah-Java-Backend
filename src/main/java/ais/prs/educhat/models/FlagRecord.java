@@ -12,7 +12,7 @@ public class FlagRecord {
     
     private Long id;
     private String senderId;
-    private String receiverId;
+    private String recipientId;
     private String messageId;
     private String originalText;
     private String rephraseSuggested;
@@ -23,11 +23,11 @@ public class FlagRecord {
     public FlagRecord() {}
 
     // Flag Record creation constructor (ID auto-incremental)
-    public FlagRecord(String senderId, String receiverId, String messageId, String originalText, 
+    public FlagRecord(String senderId, String recipientId, String messageId, String originalText, 
                         String LLMRephrase, FlagCategory flagCategory) {
         // this.id = flagIDBuilder();
         this.senderId = senderId;
-        this.receiverId = receiverId;
+        this.recipientId = recipientId;
         this.messageId = messageId;
         this.originalText = originalText;
         this.rephraseSuggested = LLMRephrase;
@@ -36,11 +36,11 @@ public class FlagRecord {
     }
 
     // Flag Record constructor (For retrieval)
-    public FlagRecord(Long id, String senderId, String receiverId, String messageId,
+    public FlagRecord(Long id, String senderId, String recipientId, String messageId,
                        String originalText, String rephraseSuggested, FlagCategory flagCategory, Instant flaggedAt) {
         this.id = id;
         this.senderId = senderId;
-        this.receiverId = receiverId;
+        this.recipientId = recipientId;
         this.messageId = messageId;
         this.originalText = originalText;
         this.rephraseSuggested = rephraseSuggested;
@@ -65,12 +65,12 @@ public class FlagRecord {
         this.senderId = senderId;
     }
 
-    public String getReceiverId() {
-        return receiverId;
+    public String getRecipientId() {
+        return recipientId;
     }
 
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
+    public void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
     }
 
     public String getMessageId() {
@@ -118,7 +118,7 @@ public class FlagRecord {
         return "FlagRecord{" +
                 "id='" + id + '\'' +
                 ", senderId='" + senderId + '\'' +
-                ", receiverId='" + receiverId + '\'' +
+                ", recipientId='" + recipientId + '\'' +
                 ", messageId='" + messageId + '\'' +
                 ", originalText='" + originalText + '\'' +
                 ", rephraseSuggested='" + rephraseSuggested + '\'' +
@@ -131,7 +131,7 @@ public class FlagRecord {
         return Json.createObjectBuilder()
             .add("id", id)
             .add("senderId", senderId)
-            .add("receiverId", receiverId)
+            .add("recipientId", recipientId)
             .add("messageId", messageId)
             .add("originalText", originalText)
             .add("rephraseSuggested", rephraseSuggested)
@@ -145,7 +145,7 @@ public class FlagRecord {
         return new FlagRecord(
             srs.getLong("id"),
             srs.getString("sender_id"),
-            srs.getString("receiver_id"),
+            srs.getString("recipient_id"),
             srs.getString("message_id"),
             srs.getString("original_text"),
             srs.getString("rephrase_suggested"),

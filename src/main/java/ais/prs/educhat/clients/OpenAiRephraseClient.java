@@ -40,11 +40,11 @@ public class OpenAiRephraseClient {
 
     // Returns a rephrased version of the message, or null if the call fails / response can't be parsed.
     // Callers must treat null as "no suggestion available" rather than propagating an error.
-    public String rephrase(String originalMessage, FlagCategory flagCategory) {
+    public String rephrase(String originalMessage, FlagCategory flagCategory, String conversationContext) {
         Map<String, Object> requestBody = Map.of(
                 "model", model,
                 "messages", List.of(
-                        Map.of("role", "system", "content", buildSystemPrompt(flagCategory)),
+                        Map.of("role", "system", "content", buildSystemPrompt(flagCategory, conversationContext)),
                         Map.of("role", "user", "content", originalMessage)
                 ),
                 "temperature", 0.3,
@@ -73,12 +73,18 @@ public class OpenAiRephraseClient {
         }
     }
 
-    private String buildSystemPrompt(FlagCategory flagCategory) {
-        return """
+    private String buildSystemPrompt(FlagCategory flagCategory, String conversationContext) {
+        String instructions = """
                 You are a message-rewriting assistant for a school chat platform.
                 The following student message was flagged as %s.
                 Rewrite it so it expresses the same underlying point without the harmful language or tone.
                 Keep it brief and in the student's own voice. Reply with ONLY the rewritten message, no explanation, no quotes.
                 """.formatted(flagCategory.name().toLowerCase().replace('_', ' '));
+
+        if (conversationContext == null || conversationContext.isBlank()) {
+            return instructions;
+        }
+
+        return instructions + "\nConversation context (most recent messages, for tone/reference only):\n" + conversationContext;
     }
 }

@@ -1,6 +1,7 @@
 package ais.prs.educhat.repositories;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,10 +23,6 @@ public class MessageRepository {
     private RedisTemplate<String,String> redisTemplate;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    // public MessageRepository(ObjectMapper objectMapper) {
-    //     this.objectMapper = objectMapper;
-    // }
 
     // public void saveMessage(String key, String message) {
     //     System.out.println("Saving message for conversation between: " + key);
@@ -61,6 +58,15 @@ public class MessageRepository {
                           .map(this::deserializeMessage)
                           .collect(Collectors.toList());
     }
+
+    public List<Message> getRecentContext(String key, int limit) {
+        Set<String> lastMessages = redisTemplate.opsForZSet().reverseRange(key, 0, limit);
+        List<Message> context = lastMessages.stream()
+            .map(this::deserializeMessage)
+            .collect(Collectors.toList());
+        Collections.reverse(context);
+        return context;
+    } 
 
     public void removeExpiredMessages(String key, Instant cutoff) {
         // Removes messages older than the cutoff timestamp

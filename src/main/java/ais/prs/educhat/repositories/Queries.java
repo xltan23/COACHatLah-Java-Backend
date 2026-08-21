@@ -28,7 +28,7 @@ public class Queries {
     """;
 
     public final static String SQL_INSERT_FLAGRECORD_IN_FLAGRECORDS = """
-        INSERT INTO flag_records (sender_id, receiver_id, message_id, original_text, rephrase_suggested, flag_category, flagged_at) 
+        INSERT INTO flag_records (sender_id, recipient_id, message_id, original_text, rephrase_suggested, flag_category, flagged_at) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 

@@ -29,9 +29,13 @@ public class MessageService {
 
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
-    public MessageResponse sendMessage(String sender, String receiver, String content) {
-        Message message = new Message(sender, receiver, content);
-        String key = buildKey(sender, receiver);
+    public MessageResponse sendMessage(String sender, String recipient, String content) {
+        Message message = new Message(sender, recipient, content);
+        String key = buildKey(sender, recipient);
+
+        List<Message> context = messageRepo.getRecentContext(key, 10);
+        String formattedContext = formatContext(context, sender);
+        System.out.printf("Context:\n%s", formattedContext);
 
         // Establish message check (Python API) 
         boolean flagged = true;
@@ -39,10 +43,10 @@ public class MessageService {
 
         if (flagged) {
             System.out.println("\nFlagging message...");
-            String llmRephrased = openAiClient.rephrase(content, flagCategory);
+            String llmRephrased = openAiClient.rephrase(content, flagCategory, formattedContext);
             System.out.printf("\nLLM Response: " + llmRephrased);
             // If flagged, create FlagRecord object and update Profile flag_count
-            flagSvc.flagRecord(sender, receiver, message, content, llmRephrased, flagCategory);
+            flagSvc.flagRecord(sender, recipient, message, content, llmRephrased, flagCategory);
 
             MessageResponse notSent = new MessageResponse(false, null, flagCategory.name(), llmRephrased);
             return notSent;
@@ -62,12 +66,22 @@ public class MessageService {
     }
 
     // Standardize key based on IDs of users in conversation
-    private String buildKey(String sender, String receiver) {
+    private String buildKey(String sender, String recipient) {
         List<String> userIDs = new LinkedList<>();
         userIDs.add(sender);
-        userIDs.add(receiver);
-        Collections.sort(userIDs); // Sort to ensure consistent key regardless of sender/receiver order
+        userIDs.add(recipient);
+        Collections.sort(userIDs); // Sort to ensure consistent key regardless of sender/recipient order
         String key = "CHAT{" + userIDs.get(0) + ":" + userIDs.get(1) + "}"; // Unique key for the conversation
         return key;
+    }
+
+    // Format context: 
+    private String formatContext(List<Message> context, String sender) {
+        StringBuilder sb = new StringBuilder();
+        for (Message m : context) {
+            String label = m.getSenderId().equals(sender) ? "Sender" : "Recipient";
+            sb.append(label).append(":").append(m.getContent()).append("\n");
+        }
+        return sb.toString();
     }
 }

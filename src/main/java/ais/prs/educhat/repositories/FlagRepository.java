@@ -23,7 +23,7 @@ public class FlagRepository {
         System.out.println("\nInserting flag record into database: " + flagRecord);
         return jdbcTemplate.update(SQL_INSERT_FLAGRECORD_IN_FLAGRECORDS,
             flagRecord.getSenderId(),
-            flagRecord.getReceiverId(),
+            flagRecord.getRecipientId(),
             flagRecord.getMessageId(),
             flagRecord.getOriginalText(),
             flagRecord.getRephraseSuggested(),

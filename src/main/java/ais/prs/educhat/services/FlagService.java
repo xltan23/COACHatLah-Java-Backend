@@ -22,9 +22,9 @@ public class FlagService {
     private ProfileRepository profileRepo;
 
     @Transactional
-    public FlagRecord flagRecord(String sender, String receiver, Message message, String content, String llmRephrased, FlagCategory flagCategory) {
+    public FlagRecord flagRecord(String sender, String recipient, Message message, String content, String llmRephrased, FlagCategory flagCategory) {
         System.out.printf("\nCreating flag record for: %s", sender);
-        FlagRecord fr = new FlagRecord(sender, receiver, message.getId(), content, llmRephrased, flagCategory);
+        FlagRecord fr = new FlagRecord(sender, recipient, message.getId(), content, llmRephrased, flagCategory);
         flagRepo.addFlagRecord(fr);
         profileRepo.incrementFlagCount(sender);
 
