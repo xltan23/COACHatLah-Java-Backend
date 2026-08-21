@@ -1,5 +1,7 @@
 package ais.prs.educhat.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,5 +35,9 @@ public class FlagService {
             // Additional method to alert disciplinary committee
         }
         return fr;
+    }
+
+    public List<FlagRecord> viewFlagRecords(String id) {
+        return flagRepo.getFlagRecords(id);
     }
 }

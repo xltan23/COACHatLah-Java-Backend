@@ -31,4 +31,8 @@ public class Queries {
         INSERT INTO flag_records (sender_id, receiver_id, message_id, original_text, rephrase_suggested, flag_category, flagged_at) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
+
+    public final static String SQL_SELECT_FLAGRECORDS_BY_ID = """
+        SELECT * FROM flag_records WHERE sender_id = ?        
+    """;
 }

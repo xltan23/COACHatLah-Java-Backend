@@ -2,7 +2,11 @@ package ais.prs.educhat.models;
 
 import java.time.Instant;
 
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 import ais.prs.educhat.models.enums.FlagCategory;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 public class FlagRecord {
     
@@ -19,7 +23,8 @@ public class FlagRecord {
     public FlagRecord() {}
 
     // Flag Record creation constructor (ID auto-incremental)
-    public FlagRecord(String senderId, String receiverId, String messageId, String originalText, String LLMRephrase, FlagCategory flagCategory) {
+    public FlagRecord(String senderId, String receiverId, String messageId, String originalText, 
+                        String LLMRephrase, FlagCategory flagCategory) {
         // this.id = flagIDBuilder();
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -28,6 +33,19 @@ public class FlagRecord {
         this.rephraseSuggested = LLMRephrase;
         this.flagCategory = flagCategory;
         this.flaggedAt = Instant.now();
+    }
+
+    // Flag Record constructor (For retrieval)
+    public FlagRecord(Long id, String senderId, String receiverId, String messageId,
+                       String originalText, String rephraseSuggested, FlagCategory flagCategory, Instant flaggedAt) {
+        this.id = id;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.messageId = messageId;
+        this.originalText = originalText;
+        this.rephraseSuggested = rephraseSuggested;
+        this.flagCategory = flagCategory;
+        this.flaggedAt = flaggedAt;
     }
 
     // Getters and Setters
@@ -107,5 +125,32 @@ public class FlagRecord {
                 ", flagCategory=" + flagCategory +
                 ", flaggedAt=" + flaggedAt +
                 '}';
+    }
+
+    public JsonObject toJson() {
+        return Json.createObjectBuilder()
+            .add("id", id)
+            .add("senderId", senderId)
+            .add("receiverId", receiverId)
+            .add("messageId", messageId)
+            .add("originalText", originalText)
+            .add("rephraseSuggested", rephraseSuggested)
+            .add("flagCategory", flagCategory.toString())
+            .add("flaggedAt", flaggedAt.toString())
+            .build();
+    }
+
+    // Craete FlagRecord object from SQL row set
+    public static FlagRecord createFlagRecord(SqlRowSet srs) {
+        return new FlagRecord(
+            srs.getLong("id"),
+            srs.getString("sender_id"),
+            srs.getString("receiver_id"),
+            srs.getString("message_id"),
+            srs.getString("original_text"),
+            srs.getString("rephrase_suggested"),
+            FlagCategory.valueOf(srs.getString("flag_category")),
+            srs.getTimestamp("flagged_at").toInstant()
+        );
     }
 }

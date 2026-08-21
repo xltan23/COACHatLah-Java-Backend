@@ -27,7 +27,7 @@ public class ProfileController {
 
     // Admin Feature: Add a new profile
     @PostMapping("/add")
-    private ResponseEntity<String> addProfile(@RequestBody MultiValueMap<String, String> formData) {
+    public ResponseEntity<String> addProfile(@RequestBody MultiValueMap<String, String> formData) {
         System.out.println("\nReceived form data: " + formData);
         boolean inserted = profileSvc.addProfile(
             formData.getFirst("name"),
@@ -47,7 +47,7 @@ public class ProfileController {
 
     // Admin Feature: Get class information
     @GetMapping("/getClass")
-    private ResponseEntity<String> getClass(@RequestBody MultiValueMap<String, String> formData) {
+    public ResponseEntity<String> getClass(@RequestBody MultiValueMap<String, String> formData) {
         System.out.println("\nReceived form data: " + formData);
         List<Profile> profiles = profileSvc.getProfilesByClass(
             formData.getFirst("school"), 
@@ -63,7 +63,7 @@ public class ProfileController {
 
     // User Feature: Get class profiles by ID (Get access to all members of same class)
     @GetMapping("/getClass/{id}")
-    private ResponseEntity<String> getClassById(@PathVariable String id) {
+    public ResponseEntity<String> getClassById(@PathVariable String id) {
         System.out.println("\nReceived request for class with ID: " + id);
         List<Profile> profiles = profileSvc.getClassProfilesById(id, "CLASS"); 
         JsonArrayBuilder jab = Json.createArrayBuilder();
@@ -76,7 +76,7 @@ public class ProfileController {
 
     // User Feature: Get CCA profiles by ID (Get access to all members of same CCA)
     @GetMapping("/getCCA/{id}")
-    private ResponseEntity<String> getCCAById(@PathVariable String id) {
+    public ResponseEntity<String> getCCAById(@PathVariable String id) {
         System.out.println("\nReceived request for CCA with ID: " + id);
         List<Profile> profiles = profileSvc.getCCAProfilesById(id, "CCA"); 
         JsonArrayBuilder jab = Json.createArrayBuilder();
