@@ -3,23 +3,26 @@ package ais.prs.educhat.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import ais.prs.educhat.models.Profile;
 import ais.prs.educhat.services.ProfileService;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 
-@Controller
-@RequestMapping("/profile")
+@RestController
+@RequestMapping("/api/profile")
+@CrossOrigin(origins = "*")
 public class ProfileController {
     
     @Autowired
@@ -37,53 +40,42 @@ public class ProfileController {
             formData.getFirst("classCohort"),
             formData.getFirst("cca")
         );
-
-        if (inserted) {
-            return ResponseEntity.ok("Profile added successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add profile.");
+        JsonObjectBuilder job = Json.createObjectBuilder();
+        if (!inserted) {
+            JsonObject errMsg = job.add("message", "Error adding profile.").build();
+            return ResponseEntity.status(500).body(errMsg.toString());
         }
+        JsonObject jo = job.add("message", "Profile added successfully.").build();
+        return ResponseEntity.ok(jo.toString());
     }
 
-    // Admin Feature: Get class information
-    @GetMapping("/getClass")
-    public ResponseEntity<String> getClass(@RequestBody MultiValueMap<String, String> formData) {
+    // Admin Feature: Get class/cca information - to be refined
+    @GetMapping("/school-class")
+    public ResponseEntity<List<Profile>> getClass(@RequestBody MultiValueMap<String, String> formData) {
         System.out.println("\nReceived form data: " + formData);
         List<Profile> profiles = profileSvc.getProfilesByClass(
             formData.getFirst("school"), 
             formData.getFirst("classCohort")
         );
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Profile profile : profiles) {
-            jab.add(profile.toJson());
-        }
 
-        return ResponseEntity.ok(jab.build().toString());
+        return ResponseEntity.ok(profiles);
     }
 
     // User Feature: Get class profiles by ID (Get access to all members of same class)
     @GetMapping("/getClass/{id}")
-    public ResponseEntity<String> getClassById(@PathVariable String id) {
+    public ResponseEntity<List<Profile>> getClassById(@PathVariable String id) {
         System.out.println("\nReceived request for class with ID: " + id);
         List<Profile> profiles = profileSvc.getClassProfilesById(id, "CLASS"); 
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Profile profile : profiles) {
-            jab.add(profile.toJson());
-        }
 
-        return ResponseEntity.ok(jab.build().toString());
+        return ResponseEntity.ok(profiles);
     }
 
     // User Feature: Get CCA profiles by ID (Get access to all members of same CCA)
     @GetMapping("/getCCA/{id}")
-    public ResponseEntity<String> getCCAById(@PathVariable String id) {
+    public ResponseEntity<List<Profile>> getCCAById(@PathVariable String id) {
         System.out.println("\nReceived request for CCA with ID: " + id);
         List<Profile> profiles = profileSvc.getCCAProfilesById(id, "CCA"); 
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Profile profile : profiles) {
-            jab.add(profile.toJson());
-        }
 
-        return ResponseEntity.ok(jab.build().toString());
+        return ResponseEntity.ok(profiles);
     }
 }

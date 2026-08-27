@@ -38,7 +38,7 @@ public class MessageService {
         System.out.printf("Context:\n%s", formattedContext);
 
         // Establish message check (Python API) 
-        boolean flagged = true;
+        boolean flagged = false;
         FlagCategory flagCategory = FlagCategory.CYBERBULLYING;
 
         if (flagged) {
