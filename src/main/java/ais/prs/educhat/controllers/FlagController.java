@@ -26,12 +26,14 @@ public class FlagController {
     // For disciplinary committee to review
     @GetMapping("/{id}")
     public ResponseEntity<String> getFlagRecordsByID(@PathVariable String id){
+        
         System.out.println("\nReceived request for Flag Records of: " + id);
         List<FlagRecord> flagRecords = flagSvc.viewFlagRecords(id);
         JsonArrayBuilder jab = Json.createArrayBuilder();
         for (FlagRecord flagRecord : flagRecords) {
             jab.add(flagRecord.toJson());
-        }      
+        } 
+             
         return ResponseEntity.ok(jab.build().toString());
     }
 }

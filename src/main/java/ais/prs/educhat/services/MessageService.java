@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ais.prs.educhat.clients.OpenAiRephraseClient;
+import ais.prs.educhat.dto.MessageDto;
 import ais.prs.educhat.dto.MessageResponse;
 import ais.prs.educhat.models.Message;
 import ais.prs.educhat.models.enums.FlagCategory;
@@ -29,12 +30,13 @@ public class MessageService {
 
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
-    public MessageResponse sendMessage(String sender, String recipient, String content) {
-        Message message = new Message(sender, recipient, content);
-        String key = buildKey(sender, recipient);
+    public MessageResponse sendMessage(String senderId, String recipientId, String content) {
+        Message message = new Message(senderId, recipientId, content);
+        MessageDto messageDto = new MessageDto(message.getId(), senderId, recipientId, content, message.getTimestamp());
+        String key = buildKey(senderId, recipientId);
 
         List<Message> context = messageRepo.getRecentContext(key, 10);
-        String formattedContext = formatContext(context, sender);
+        String formattedContext = formatContext(context, senderId);
         System.out.printf("Context:\n%s", formattedContext);
 
         // Establish message check (Python API) 
@@ -46,7 +48,7 @@ public class MessageService {
             String llmRephrased = openAiClient.rephrase(content, flagCategory, formattedContext);
             System.out.printf("\nLLM Response: " + llmRephrased);
             // If flagged, create FlagRecord object and update Profile flag_count
-            flagSvc.flagRecord(sender, recipient, message, content, llmRephrased, flagCategory);
+            flagSvc.flagRecord(senderId, recipientId, message, content, llmRephrased, flagCategory);
 
             MessageResponse notSent = new MessageResponse(false, null, flagCategory.name(), llmRephrased);
             return notSent;
@@ -54,7 +56,7 @@ public class MessageService {
 
         // If not flagged, proceed to send message
         messageRepo.saveMessage(key, message);
-        MessageResponse sent = new MessageResponse(true, message, null, null);
+        MessageResponse sent = new MessageResponse(true, messageDto, null, null);
         return sent;
     }
 
@@ -66,10 +68,10 @@ public class MessageService {
     }
 
     // Standardize key based on IDs of users in conversation
-    private String buildKey(String sender, String recipient) {
+    private String buildKey(String senderId, String recipientId) {
         List<String> userIDs = new LinkedList<>();
-        userIDs.add(sender);
-        userIDs.add(recipient);
+        userIDs.add(senderId);
+        userIDs.add(recipientId);
         Collections.sort(userIDs); // Sort to ensure consistent key regardless of sender/recipient order
         String key = "CHAT{" + userIDs.get(0) + ":" + userIDs.get(1) + "}"; // Unique key for the conversation
         return key;

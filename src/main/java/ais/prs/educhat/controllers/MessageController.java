@@ -18,8 +18,6 @@ import ais.prs.educhat.dto.MessageRequest;
 import ais.prs.educhat.dto.MessageResponse;
 import ais.prs.educhat.models.Message;
 import ais.prs.educhat.services.MessageService;
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
 
 @RestController
 @RequestMapping("/api/message")
@@ -41,24 +39,27 @@ public class MessageController {
         return ResponseEntity.ok(msgResp);
     }
 
+    // Send message between 2 users
     @PostMapping("/send")
-    public ResponseEntity<MessageResponse> saveMessage(@RequestBody MessageRequest msgReq) {
+    public ResponseEntity<MessageResponse> sendMessage(@RequestBody MessageRequest msgReq) {
         
         MessageResponse msgResp = messageSvc.sendMessage(
-            msgReq.sender(), 
-            msgReq.recipient(), 
+            msgReq.senderId(), 
+            msgReq.recipientId(), 
             msgReq.content()
         );
         return ResponseEntity.ok(msgResp);
     }
 
+    // Retrieve conversation history between 2 users
     @GetMapping("/history")
     public ResponseEntity<List<MessageDto>> retrieveConversation(@RequestParam String uid1, @RequestParam String uid2) {
+        
         List<Message> messages = messageSvc.getConversation(uid1, uid2);
         List<MessageDto> messageDtos = messages.stream()
             .map(MessageDto::from)
             .toList();
-            
+
         return ResponseEntity.ok(messageDtos);
     }
 }
