@@ -21,6 +21,10 @@ public class ProfileService {
         return profileRepo.addProfile(profile);
     }
 
+    public Profile getSpecificProfile(String id) {
+        return profileRepo.getSpecificProfile(id);
+    }
+
     public List<Profile> getProfilesByClass(String school, String classCohort) {
         return profileRepo.getProfilesByClass(school, classCohort);
     }

@@ -88,6 +88,15 @@ public class ProfileController {
         return ResponseEntity.ok(profiles);
     }
 
+    @GetMapping ("/{id}")
+    public ResponseEntity<ProfileDto> getSpecificProfile(@PathVariable String id) {
+
+        System.out.println("\nReceived request for specific profile with ID: " + id);
+        Profile profile = profileSvc.getSpecificProfile(id);
+        
+        return ResponseEntity.ok(ProfileDto.from(profile));
+    }
+
     // User Feature: Get class profiles by ID (Get access to all members of same class)
     @GetMapping("/getClass/{id}")
     public ResponseEntity<List<ProfileDto>> getClassById(@PathVariable String id) {

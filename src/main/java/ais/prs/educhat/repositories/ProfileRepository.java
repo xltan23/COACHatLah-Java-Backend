@@ -39,6 +39,18 @@ public class ProfileRepository {
         ) > 0;
     }
 
+    public Profile getSpecificProfile(String id) {
+        System.out.printf("\n Fetching %s profile from database...", id);
+
+        Profile profile = new Profile();
+        SqlRowSet srs = jdbcTemplate.queryForRowSet(SQL_SELECT_PROFILES_BY_ID, id);
+        while (srs.next()) {
+            profile = Profile.createProfile(srs);
+        }
+        System.out.println("\nRetrieval complete");
+        return profile;
+    }
+
     public List<Profile> getProfilesByClass(String school, String classCohort) {
         System.out.printf("\nFetching %s %s information from database... ", school, classCohort);
         
