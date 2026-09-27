@@ -24,23 +24,6 @@ public class MessageRepository {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // public void saveMessage(String key, String message) {
-    //     System.out.println("Saving message for conversation between: " + key);
-    //     ValueOperations<String, String> valueOps = redisTemplate.opsForValue();
-    //     valueOps.set(key, message);
-    // }
-
-    // public Optional<String> getMessage(String key) {
-    //     System.out.println("Retrieving conversation for: " + key);
-    //     ValueOperations<String, String> valueOps = redisTemplate.opsForValue();
-    //     String conversation = valueOps.get(key);
-    //     if (null == conversation) {
-    //         System.out.println("No conversation found for: " + key);
-    //         return Optional.empty();
-    //     } 
-    //     return Optional.of(conversation);
-    // }
-
     public void saveMessage(String key, Message message) {
         try {
             String json = objectMapper.writeValueAsString(message);

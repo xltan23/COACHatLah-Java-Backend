@@ -9,9 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ais.prs.educhat.clients.ModerationClient;
 import ais.prs.educhat.clients.OpenAiRephraseClient;
 import ais.prs.educhat.dto.MessageDto;
 import ais.prs.educhat.dto.MessageResponse;
+import ais.prs.educhat.dto.ModerationResponse;
 import ais.prs.educhat.models.Message;
 import ais.prs.educhat.models.enums.FlagCategory;
 import ais.prs.educhat.repositories.MessageRepository;
@@ -28,38 +30,56 @@ public class MessageService {
     @Autowired
     private OpenAiRephraseClient openAiClient;
 
+    @Autowired
+    private ModerationClient moderationClient;
+
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
+    // Send message between 2 users, with moderation and flagging
     public MessageResponse sendMessage(String senderId, String recipientId, String content) {
+
         Message message = new Message(senderId, recipientId, content);
-        MessageDto messageDto = new MessageDto(message.getId(), senderId, recipientId, content, message.getTimestamp());
         String key = buildKey(senderId, recipientId);
-
+        // Context retrieval: get the last 10 messages in the conversation for context
         List<Message> context = messageRepo.getRecentContext(key, 10);
-        String formattedContext = formatContext(context, senderId);
-        System.out.printf("Context:\n%s", formattedContext);
+        // Format context purely text from sender
 
-        // Establish message check (Python API) 
-        boolean flagged = false;
-        FlagCategory flagCategory = FlagCategory.CYBERBULLYING;
+        // Establish message check (Python API)
+        ModerationResponse scores = moderationClient.score(content);
+        if (scores != null) {
+            System.out.printf("\nModeration scores -> toxic: %.4f, inappropriate: %.4f, cyberbullying: %.4f\n",
+                    scores.toxic(), scores.inappropriate(), scores.cyberbullying());
+        } else {
+            System.out.println("\nModeration scores unavailable");
+        }
 
-        if (flagged) {
-            System.out.println("\nFlagging message...");
-            String llmRephrased = openAiClient.rephrase(content, flagCategory, formattedContext);
+        // Determine if message is flagged based on scores and threshold
+        List<FlagCategory> flagCategories = flaggedCategories(scores);
+        if (!flagCategories.isEmpty()) {
+            String formattedContext = formatContext(context, senderId);
+            System.out.printf("Context:\n%s", formattedContext);
+
+            String formattedCategories = formatFlagCategories(flagCategories);
+            System.out.printf("\nFlagging message as %s", formattedCategories);
+
+            String llmRephrased = openAiClient.rephrase(content, formattedCategories, formattedContext);
             System.out.printf("\nLLM Response: " + llmRephrased);
-            // If flagged, create FlagRecord object and update Profile flag_count
-            flagSvc.flagRecord(senderId, recipientId, message, content, llmRephrased, flagCategory);
 
-            MessageResponse notSent = new MessageResponse(false, null, flagCategory.name(), llmRephrased);
+            // If flagged, create FlagRecord object and update Profile flag_count
+            flagSvc.flagRecord(senderId, recipientId, message, llmRephrased, flagCategories, scores);
+
+            MessageResponse notSent = new MessageResponse(false, null, formattedCategories, llmRephrased);
             return notSent;
-        } 
+        }
 
         // If not flagged, proceed to send message
         messageRepo.saveMessage(key, message);
+        MessageDto messageDto = new MessageDto(message.getId(), senderId, recipientId, content, message.getTimestamp());
         MessageResponse sent = new MessageResponse(true, messageDto, null, null);
         return sent;
     }
 
+    // Conversation retrieval: get all messages between two users, removing expired messages first
     public List<Message> getConversation(String userID1, String userID2) {
         String key = buildKey(userID1, userID2);
         Instant cutoff = Instant.now().minus(MESSAGE_EXPIRATION);
@@ -77,7 +97,7 @@ public class MessageService {
         return key;
     }
 
-    // Format context: 
+    // Format context messages for LLM input, labeling each message as "Sender" or "Recipient"
     private String formatContext(List<Message> context, String sender) {
         StringBuilder sb = new StringBuilder();
         for (Message m : context) {
@@ -85,5 +105,33 @@ public class MessageService {
             sb.append(label).append(":").append(m.getContent()).append("\n");
         }
         return sb.toString();
+    }
+
+    // Format flagged categories for LLM input, joining them into a single string
+    private String formatFlagCategories(List<FlagCategory> flagCategories) {
+        return flagCategories.stream()
+                .map(Enum::name)
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("No categories");
+    }
+
+    // Categories whose score is above the threshold, highest score first. No scores (moderation service unavailable) -> none flagged.
+    private List<FlagCategory> flaggedCategories(ModerationResponse scores) {
+        // Return empty list if scores are null (moderation service unavailable)
+        if (scores == null) {
+            return List.of();
+        }
+        // Threshold can be adjusted based on desired sensitivity; currently set to 0.67
+        List<FlagCategory> flaggedCategories = new LinkedList<>();
+        if (scores.toxic() > 0.67) {
+            flaggedCategories.add(FlagCategory.TOXIC);
+        }
+        if (scores.inappropriate() > 0.67) {
+            flaggedCategories.add(FlagCategory.INAPPROPRIATE);
+        }
+        if (scores.cyberbullying() > 0.67) {
+            flaggedCategories.add(FlagCategory.CYBERBULLYING);
+        }
+        return flaggedCategories;
     }
 }

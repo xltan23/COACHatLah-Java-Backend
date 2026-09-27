@@ -28,8 +28,8 @@ public class Queries {
     """;
 
     public final static String SQL_INSERT_FLAGRECORD_IN_FLAGRECORDS = """
-        INSERT INTO flag_records (sender_id, recipient_id, message_id, original_text, rephrase_suggested, flag_category, flagged_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO flag_records (sender_id, recipient_id, message_id, original_text, rephrase_suggested, toxic, inappropriate, cyberbullying, confidence_scores, flagged_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     public final static String SQL_SELECT_FLAGRECORDS_BY_ID = """
