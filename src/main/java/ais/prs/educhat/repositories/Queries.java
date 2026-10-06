@@ -51,4 +51,8 @@ public class Queries {
     public final static String SQL_SELECT_ALL_ESCALATIONS = """
         SELECT * FROM escalations
     """;
+
+    public final static String SQL_INSERT_REVIEW_IN_ESCALATIONS = """
+        UPDATE escalations SET review_status = ?, reviewed_by = ?, review_comments = ?, reviewed_at = ? WHERE id = ?
+    """;
 }

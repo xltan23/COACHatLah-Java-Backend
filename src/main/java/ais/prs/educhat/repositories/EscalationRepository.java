@@ -1,6 +1,7 @@
 package ais.prs.educhat.repositories;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import static ais.prs.educhat.repositories.Queries.*;
 
+import ais.prs.educhat.dto.ReviewDto;
 import ais.prs.educhat.models.Escalation;
+import ais.prs.educhat.models.enums.ReviewStatus;
 
 @Repository 
 public class EscalationRepository {
@@ -43,4 +46,16 @@ public class EscalationRepository {
         return escalations;
     }
 
+    public boolean insertReview(ReviewDto reviewDto) {
+        System.out.printf("\nInserting review by %s for escalation %d into database", reviewDto.reviewedBy(), reviewDto.escalationId());
+
+        return jdbcTemplate.update(
+            SQL_INSERT_REVIEW_IN_ESCALATIONS,
+            ReviewStatus.REVIEWED.name(),
+            reviewDto.reviewedBy(),
+            reviewDto.reviewComments(),
+            Timestamp.from(Instant.now()),
+            reviewDto.escalationId()
+        ) > 0;
+    }
 }

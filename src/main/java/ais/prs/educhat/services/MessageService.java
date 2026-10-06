@@ -42,7 +42,6 @@ public class MessageService {
         String key = buildKey(senderId, recipientId);
         // Context retrieval: get the last 10 messages in the conversation for context
         List<Message> context = messageRepo.getRecentContext(key, 10);
-        // Format context purely text from sender
 
         // Establish message check (Python API)
         ModerationResponse scores = moderationClient.score(content);
@@ -123,13 +122,13 @@ public class MessageService {
         }
         // Threshold can be adjusted based on desired sensitivity; currently set to 0.67
         List<FlagCategory> flaggedCategories = new LinkedList<>();
-        if (scores.toxic() > 0.67) {
+        if (scores.toxic() > 0.6) {
             flaggedCategories.add(FlagCategory.TOXIC);
         }
-        if (scores.inappropriate() > 0.67) {
+        if (scores.inappropriate() > 0.5) {
             flaggedCategories.add(FlagCategory.INAPPROPRIATE);
         }
-        if (scores.cyberbullying() > 0.67) {
+        if (scores.cyberbullying() > 0.75) {
             flaggedCategories.add(FlagCategory.CYBERBULLYING);
         }
         return flaggedCategories;

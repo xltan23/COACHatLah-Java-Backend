@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ais.prs.educhat.dto.EscalationDto;
+import ais.prs.educhat.dto.ReviewDto;
 import ais.prs.educhat.repositories.EscalationRepository;
 
 @Service 
@@ -19,5 +20,9 @@ public class EscalationService {
         return escalationRepo.getEscalations().stream()
                 .map(EscalationDto::from)
                 .collect(Collectors.toList());
+    }
+
+    public boolean insertReview(ReviewDto reviewDto) {
+        return escalationRepo.insertReview(reviewDto);
     }
 }
