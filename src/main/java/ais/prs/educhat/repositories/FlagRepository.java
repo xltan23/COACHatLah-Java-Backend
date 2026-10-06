@@ -8,9 +8,15 @@ import org.springframework.stereotype.Repository;
 import static ais.prs.educhat.repositories.Queries.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import ais.prs.educhat.dto.SpikeStudentCountsDto;
 import ais.prs.educhat.models.FlagRecord;
 import ais.prs.educhat.models.enums.FlagCategory;
 import jakarta.json.JsonObject;
@@ -51,5 +57,30 @@ public class FlagRepository {
         }
 
         return flagRecords;
+    }
+
+    // For the daily spike detection job: 24 hourly flag counts (index = hour) per student flagged on the given date
+    public List<SpikeStudentCountsDto> getHourlyFlagCounts(LocalDate date) {
+        System.out.printf("\nRetrieving hourly flag counts for %s from database ", date);
+
+        ZoneId zone = ZoneId.of("Asia/Singapore");
+        Timestamp start = Timestamp.from(date.atStartOfDay(zone).toInstant());
+        Timestamp end = Timestamp.from(date.plusDays(1).atStartOfDay(zone).toInstant());
+
+        Map<String, Integer[]> countsByStudent = new LinkedHashMap<>();
+        SqlRowSet srs = jdbcTemplate.queryForRowSet(SQL_SELECT_HOURLY_FLAG_COUNTS, start, end);
+        while (srs.next()) {
+            Integer[] counts = countsByStudent.computeIfAbsent(srs.getString("sender_id"), k -> {
+                Integer[] zeros = new Integer[24];
+                Arrays.fill(zeros, 0);
+                return zeros;
+            });
+            counts[srs.getInt("hour_of_day")] = srs.getInt("flag_count");
+        }
+
+        List<SpikeStudentCountsDto> students = new LinkedList<>();
+        countsByStudent.forEach((id, counts) -> students.add(new SpikeStudentCountsDto(id, List.of(counts))));
+
+        return students;
     }
 }

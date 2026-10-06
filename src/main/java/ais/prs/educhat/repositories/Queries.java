@@ -35,4 +35,20 @@ public class Queries {
     public final static String SQL_SELECT_FLAGRECORDS_BY_ID = """
         SELECT * FROM flag_records WHERE sender_id = ?        
     """;
+
+    // Hourly flag counts per sender for flagged_at in [start, end); only hours with at least one flag are returned
+    public final static String SQL_SELECT_HOURLY_FLAG_COUNTS = """
+        SELECT sender_id, HOUR(flagged_at) AS hour_of_day, COUNT(*) AS flag_count
+        FROM flag_records
+        WHERE flagged_at >= ? AND flagged_at < ?
+        GROUP BY sender_id, HOUR(flagged_at)
+    """;
+
+    public final static String SQL_INSERT_ESCALATION_IN_ESCALATIONS = """
+        INSERT INTO escalations (student_id, class_cohort, trigger_type, trigger_detail, review_status, created_at) VALUES (?, ?, ?, ?, ?, ?)
+    """;
+
+    public final static String SQL_SELECT_ALL_ESCALATIONS = """
+        SELECT * FROM escalations
+    """;
 }

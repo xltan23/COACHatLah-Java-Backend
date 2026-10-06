@@ -32,7 +32,7 @@ public class ProfileRepository {
             profile.getClassCohort(), 
             profile.getCca(),
             profile.getStatus().name(),
-            profile.getDisciplinaryStatus().name(),
+            profile.getReviewStatus().name(),
             profile.getCurrentSemesterFlagCount(),
             Timestamp.from(profile.getCreatedAt()),
             Timestamp.from(profile.getUpdatedAt())

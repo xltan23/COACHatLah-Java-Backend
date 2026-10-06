@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import ais.prs.educhat.models.enums.AccountStatus;
-import ais.prs.educhat.models.enums.DisciplinaryStatus;
+import ais.prs.educhat.models.enums.ReviewStatus;
 import ais.prs.educhat.models.enums.Role;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
@@ -23,7 +23,7 @@ public class Profile {
     private String classCohort; // 6H/26
     private String cca; 
     private AccountStatus status;
-    private DisciplinaryStatus disciplinaryStatus;
+    private ReviewStatus reviewStatus;
     private Integer currentSemesterFlagCount;
     private Instant createdAt;
     private Instant updatedAt;
@@ -41,7 +41,7 @@ public class Profile {
         this.classCohort = classCohort.toUpperCase(); 
         this.cca = cca.toUpperCase(); 
         this.status = AccountStatus.ACTIVE;
-        this.disciplinaryStatus = DisciplinaryStatus.NONE;
+        this.reviewStatus = ReviewStatus.NONE;
         this.currentSemesterFlagCount = 0;
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
@@ -124,12 +124,12 @@ public class Profile {
         this.status = status;
     }
 
-    public DisciplinaryStatus getDisciplinaryStatus() {
-        return disciplinaryStatus;
+    public ReviewStatus getReviewStatus() {
+        return reviewStatus;
     }
 
-    public void setDisciplinaryStatus(DisciplinaryStatus disciplinaryStatus) {
-        this.disciplinaryStatus = disciplinaryStatus;
+    public void setReviewStatus(ReviewStatus reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 
     public Integer getCurrentSemesterFlagCount() {
@@ -167,7 +167,7 @@ public class Profile {
                 ", classCohort='" + classCohort + '\'' +
                 ", cca='" + cca + '\'' +
                 ", status=" + status +
-                ", disciplinaryStatus=" + disciplinaryStatus +
+                ", reviewStatus=" + reviewStatus +
                 ", currentSemesterFlagCount=" + currentSemesterFlagCount +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +

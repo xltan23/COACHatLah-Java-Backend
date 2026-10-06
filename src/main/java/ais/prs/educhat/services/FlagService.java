@@ -8,9 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ais.prs.educhat.dto.ModerationResponse;
+import ais.prs.educhat.models.Escalation;
 import ais.prs.educhat.models.FlagRecord;
 import ais.prs.educhat.models.Message;
+import ais.prs.educhat.models.Profile;
 import ais.prs.educhat.models.enums.FlagCategory;
+import ais.prs.educhat.models.enums.TriggerType;
+import ais.prs.educhat.repositories.EscalationRepository;
 import ais.prs.educhat.repositories.FlagRepository;
 import ais.prs.educhat.repositories.ProfileRepository;
 import jakarta.json.Json;
@@ -24,6 +28,9 @@ public class FlagService {
 
     @Autowired
     private ProfileRepository profileRepo;
+
+    @Autowired 
+    private EscalationRepository escalationRepo;
 
     @Transactional
     public FlagRecord flagRecord(String sender, String recipient, Message message, String llmRephrased,
@@ -39,9 +46,12 @@ public class FlagService {
 
         // Check flag count sender
         int currentCount = profileRepo.getFlagCount(sender);
-        if (currentCount >= 10) {
+        if (currentCount >= 100) {
             System.out.printf("\nProfile %s to be reviewed", sender);
             // Additional method to alert disciplinary committee
+            Profile profile = profileRepo.getSpecificProfile(sender);
+            Escalation escalation = new Escalation().createEscalation(profile, TriggerType.THRESHOLD_EXCEEDED, String.valueOf(currentCount));
+            escalationRepo.addEscalation(escalation);
         }
         return fr;
     }

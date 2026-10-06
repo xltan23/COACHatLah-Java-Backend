@@ -63,7 +63,7 @@ public class MessageService {
             System.out.printf("\nFlagging message as %s", formattedCategories);
 
             String llmRephrased = openAiClient.rephrase(content, formattedCategories, formattedContext);
-            System.out.printf("\nLLM Response: " + llmRephrased);
+            System.out.printf("\nLLM Response: %s", llmRephrased);
 
             // If flagged, create FlagRecord object and update Profile flag_count
             flagSvc.flagRecord(senderId, recipientId, message, llmRephrased, flagCategories, scores);
