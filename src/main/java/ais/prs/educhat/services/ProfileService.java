@@ -25,8 +25,8 @@ public class ProfileService {
         return profileRepo.getSpecificProfile(id);
     }
 
-    public List<Profile> getProfilesByClass(String school, String classCohort) {
-        return profileRepo.getProfilesByClass(school, classCohort);
+    public List<Profile> getSupportTeamProfiles() {
+        return profileRepo.getSupportTeamProfiles();
     }
 
     public List<Profile> getClassProfilesById(String id, String search) {
@@ -36,6 +36,8 @@ public class ProfileService {
     public List<Profile> getCCAProfilesById(String id, String search) {
         return profileRepo.getProfilesById(id, search);
     }
+
+
 
     private static Role toRole(String role) {
         try {

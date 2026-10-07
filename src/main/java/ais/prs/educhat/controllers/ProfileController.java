@@ -76,16 +76,16 @@ public class ProfileController {
     }
 
     // Admin Feature: Get class/cca information - to be refined
-    @GetMapping("/school-class")
-    public ResponseEntity<List<Profile>> getClass(@RequestBody MultiValueMap<String, String> formData) {
+    @GetMapping("/support")
+    public ResponseEntity<List<ProfileDto>> getSupportTeam() {
         
-        System.out.println("\nReceived form data: " + formData);
-        List<Profile> profiles = profileSvc.getProfilesByClass(
-            formData.getFirst("school"), 
-            formData.getFirst("classCohort")
-        );
+        System.out.println("\nReceived request for support team profiles.");
+        List<Profile> profiles = profileSvc.getSupportTeamProfiles();
+        List<ProfileDto> profileDtos = profiles.stream()
+            .map(ProfileDto::from)
+            .toList();
 
-        return ResponseEntity.ok(profiles);
+        return ResponseEntity.ok(profileDtos);
     }
 
     @GetMapping ("/{id}")

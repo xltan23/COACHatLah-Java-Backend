@@ -102,6 +102,18 @@ public class ProfileRepository {
         }
     }
 
+    public List<Profile> getSupportTeamProfiles() {
+        System.out.println("\nFetching support team profiles from database...");
+        
+        SqlRowSet srs = jdbcTemplate.queryForRowSet(SQL_SELECT_SUPPORT_TEAM_PROFILES);
+        List<Profile> profiles = new LinkedList<>();
+        while (srs.next()) {
+            profiles.add(Profile.createProfile(srs));
+        }
+        System.out.println("\nRetrieval complete");
+        return profiles;
+    }
+
     public boolean incrementFlagCount(String id) {
         System.out.println("Incrementing flag count for profile: " + id);
         return jdbcTemplate.update(SQL_INCREMENT_FLAG_COUNT, Timestamp.from(Instant.now()), id) > 0;

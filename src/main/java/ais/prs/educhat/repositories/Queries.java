@@ -19,6 +19,10 @@ public class Queries {
         SELECT * FROM profiles WHERE id = ?
     """;
 
+    public final static String SQL_SELECT_SUPPORT_TEAM_PROFILES = """
+        SELECT * FROM profiles WHERE role IN ('TEACHER', 'COUNSELLOR', 'DISCIPLINARY_COMMITTEE')
+    """;
+
     public final static String SQL_INCREMENT_FLAG_COUNT = """
         UPDATE profiles SET current_semester_flag_count = current_semester_flag_count + 1, updated_at = ? WHERE id = ?
     """;
