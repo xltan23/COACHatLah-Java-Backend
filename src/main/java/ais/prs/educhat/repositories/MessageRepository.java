@@ -43,7 +43,7 @@ public class MessageRepository {
     }
 
     public List<Message> getRecentContext(String key, int limit) {
-        Set<String> lastMessages = redisTemplate.opsForZSet().reverseRange(key, 0, limit);
+        Set<String> lastMessages = redisTemplate.opsForZSet().reverseRange(key, 0, limit-1);
         List<Message> context = lastMessages.stream()
             .map(this::deserializeMessage)
             .collect(Collectors.toList());

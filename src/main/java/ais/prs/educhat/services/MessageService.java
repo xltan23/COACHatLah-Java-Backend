@@ -120,15 +120,16 @@ public class MessageService {
         if (scores == null) {
             return List.of();
         }
-        // Threshold can be adjusted based on desired sensitivity; currently set to 0.67
+        // Threshold can be adjusted based on our threshold selection in the moderation service.
+        // Threshold for toxic: 0.62, inappropriate: 0.55, cyberbullying: 0.85
         List<FlagCategory> flaggedCategories = new LinkedList<>();
-        if (scores.toxic() > 0.6) {
+        if (scores.toxic() > 0.62) {
             flaggedCategories.add(FlagCategory.TOXIC);
         }
-        if (scores.inappropriate() > 0.5) {
+        if (scores.inappropriate() > 0.55) {
             flaggedCategories.add(FlagCategory.INAPPROPRIATE);
         }
-        if (scores.cyberbullying() > 0.75) {
+        if (scores.cyberbullying() > 0.85) {
             flaggedCategories.add(FlagCategory.CYBERBULLYING);
         }
         return flaggedCategories;

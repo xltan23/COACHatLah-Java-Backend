@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ais.prs.educhat.models.FlagRecord;
+import ais.prs.educhat.dto.FlagRecordDto;
 import ais.prs.educhat.services.FlagService;
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
 
 @RestController
 @RequestMapping("/api/flagrecords")
@@ -25,15 +23,11 @@ public class FlagController {
 
     // For disciplinary committee to review
     @GetMapping("/{id}")
-    public ResponseEntity<String> getFlagRecordsByID(@PathVariable String id){
+    public ResponseEntity<List<FlagRecordDto>> getFlagRecordsByID(@PathVariable String id){
         
         System.out.println("\nReceived request for Flag Records of: " + id);
-        List<FlagRecord> flagRecords = flagSvc.viewFlagRecords(id);
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (FlagRecord flagRecord : flagRecords) {
-            jab.add(flagRecord.toJson());
-        } 
+        List<FlagRecordDto> flagRecords = flagSvc.viewFlagRecords(id);
              
-        return ResponseEntity.ok(jab.build().toString());
+        return ResponseEntity.ok(flagRecords);
     }
 }

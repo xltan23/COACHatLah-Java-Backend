@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ais.prs.educhat.dto.FlagRecordDto;
 import ais.prs.educhat.dto.ModerationResponse;
 import ais.prs.educhat.models.Escalation;
 import ais.prs.educhat.models.FlagRecord;
@@ -56,8 +57,10 @@ public class FlagService {
         return fr;
     }
 
-    public List<FlagRecord> viewFlagRecords(String id) {
-        return flagRepo.getFlagRecords(id);
+    public List<FlagRecordDto> viewFlagRecords(String id) {
+        return flagRepo.getFlagRecords(id).stream()
+            .map(FlagRecordDto::from)
+            .toList();
     }
 
     // Goes via Float.toString so a score stores as 0.99926656, not the widened double 0.9992665648460388
