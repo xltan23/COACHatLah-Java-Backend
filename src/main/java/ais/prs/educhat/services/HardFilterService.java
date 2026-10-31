@@ -26,6 +26,11 @@ public class HardFilterService {
         "fking",
         "fuking",
 
+        "mofo",
+        "mf",
+        "mfer",
+        "mfker",
+
         "jibai", 
         "chibai", 
         "cb",
