@@ -20,6 +20,7 @@ import ais.prs.educhat.repositories.FlagRepository;
 import ais.prs.educhat.repositories.ProfileRepository;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 
 @Service
 public class FlagService {
@@ -35,11 +36,11 @@ public class FlagService {
 
     @Transactional
     public FlagRecord flagRecord(String sender, String recipient, Message message, String llmRephrased,
-                                 List<FlagCategory> flagCategories, ModerationResponse scores) {
+                                 List<FlagCategory> flagCategories, ModerationResponse scores, boolean hardFiltered) {
         System.out.printf("\nCreating flag record for: %s", sender);
-        
+
         // Create a new FlagRecord object and store it in the database
-        FlagRecord fr = new FlagRecord(sender, recipient, message.getId(), message.getContent(), llmRephrased, flagCategories, toScoresJson(scores));
+        FlagRecord fr = new FlagRecord(sender, recipient, message.getId(), message.getContent(), llmRephrased, flagCategories, toScoresJson(scores, hardFiltered));
         flagRepo.addFlagRecord(fr);
 
         // One flag per message, however many categories it was flagged for
@@ -64,14 +65,18 @@ public class FlagService {
     }
 
     // Goes via Float.toString so a score stores as 0.99926656, not the widened double 0.9992665648460388
-    private JsonObject toScoresJson(ModerationResponse scores) {
+    // "source":"hard_filter" marks flags raised by the word list, so reviewers can tell them from model flags
+    private JsonObject toScoresJson(ModerationResponse scores, boolean hardFiltered) {
         if (scores == null) {
             return null;
         }
-        return Json.createObjectBuilder()
+        JsonObjectBuilder builder = Json.createObjectBuilder()
             .add("toxic", new BigDecimal(Float.toString(scores.toxic())))
             .add("inappropriate", new BigDecimal(Float.toString(scores.inappropriate())))
-            .add("cyberbullying", new BigDecimal(Float.toString(scores.cyberbullying())))
-            .build();
+            .add("cyberbullying", new BigDecimal(Float.toString(scores.cyberbullying())));
+        if (hardFiltered) {
+            builder.add("source", "hard_filter");
+        }
+        return builder.build();
     }
 }

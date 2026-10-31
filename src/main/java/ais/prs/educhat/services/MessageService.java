@@ -33,6 +33,9 @@ public class MessageService {
     @Autowired
     private ModerationClient moderationClient;
 
+    @Autowired
+    private HardFilterService hardFilter;
+
     private static final Duration MESSAGE_EXPIRATION = Duration.ofHours(48); // Set expiration to 48 hours
 
     // Send message between 2 users, with moderation and flagging
@@ -52,6 +55,14 @@ public class MessageService {
             System.out.println("\nModeration scores unavailable");
         }
 
+        // Hard filter (rule-based): known vulgarities raise toxic/inappropriate scores, even if the moderation service is down
+        boolean hardFiltered = hardFilter.matches(content);
+        if (hardFiltered) {
+            scores = hardFilter.applyTo(scores);
+            System.out.printf("Hard filter matched -> toxic: %.4f, inappropriate: %.4f, cyberbullying: %.4f\n",
+                    scores.toxic(), scores.inappropriate(), scores.cyberbullying());
+        }
+
         // Determine if message is flagged based on scores and threshold
         List<FlagCategory> flagCategories = flaggedCategories(scores);
         if (!flagCategories.isEmpty()) {
@@ -65,7 +76,7 @@ public class MessageService {
             System.out.printf("\nLLM Response: %s", llmRephrased);
 
             // If flagged, create FlagRecord object and update Profile flag_count
-            flagSvc.flagRecord(senderId, recipientId, message, llmRephrased, flagCategories, scores);
+            flagSvc.flagRecord(senderId, recipientId, message, llmRephrased, flagCategories, scores, hardFiltered);
 
             MessageResponse notSent = new MessageResponse(false, null, formattedCategories, llmRephrased);
             return notSent;
